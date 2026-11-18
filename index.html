@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>CAMPUS WALLET</title>
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f5f5f7; --line:#ececf0; --text:#1d1d1f; --sub:#86868b;
+  --blue:#0071e3; --blue-soft:#e8f1fc; --red:#ff3b30; --red-soft:#fff1f0;
+  --green:#1a9e47; --orange:#ff9500; --r:18px; --side:232px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;-webkit-tap-highlight-color:transparent}
+
+/* Navigation */
+.sidebar{display:none}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(255,255,255,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:20}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:var(--sub);padding:4px 0}
+.nav-btn svg{width:22px;height:22px;flex-shrink:0}
+.nav-btn.active{color:var(--blue)}
+
+/* Layout */
+main{padding:0 18px 120px}
+.wrap{max-width:780px;margin:0 auto}
+.topbar{position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:10;padding:calc(14px + env(safe-area-inset-top)) 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.topbar h1{font-size:26px;font-weight:700;letter-spacing:-.02em;flex:1}
+.month-nav{display:flex;align-items:center;gap:2px;background:var(--bg2);border-radius:999px;padding:3px}
+.month-nav button{width:30px;height:30px;border-radius:50%;font-size:18px;color:var(--blue);line-height:1}
+.month-nav button:hover{background:#fff}
+.month-nav span{min-width:96px;text-align:center;font-weight:600;font-size:14px}
+.save-status{font-size:12px;color:var(--sub);min-width:66px;text-align:right}
+.save-status.ok{color:var(--green)}
+.save-status.err{color:var(--red);font-weight:600}
+
+/* Components */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.card h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.card-head h3{margin:0}
+.label{font-size:13px;color:var(--sub)}
+.big{font-size:34px;font-weight:700;letter-spacing:-.03em;margin:2px 0 14px}
+.big.neg{color:var(--red)}
+.val{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-top:2px;word-break:keep-all}
+.val.inc{color:var(--green)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sub{color:var(--sub);font-size:13px}
+.hero .row{margin-top:10px}
+.progress{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--blue);border-radius:99px}
+.progress.warn i{background:var(--orange)}
+.progress.over i{background:var(--red)}
+.grid2,.grid3{display:grid;gap:14px;margin-bottom:14px}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.grid2>.card,.grid3>.card{margin-bottom:0}
+.inner{margin:16px 0 0}
+.inner>div{background:var(--bg2);border-radius:14px;padding:14px}
+.input{width:100%;height:44px;border:1px solid var(--line);border-radius:12px;padding:0 14px;background:var(--bg2);outline:none;font-size:15px}
+.input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px var(--blue-soft)}
+select.input{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.btn{height:44px;padding:0 18px;border-radius:12px;background:var(--bg2);font-weight:600;white-space:nowrap}
+.btn:hover{filter:brightness(.97)}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.danger-btn{color:var(--red)}
+.link{color:var(--blue);font-size:14px;font-weight:500}
+.hint{font-size:12.5px;color:var(--sub);margin-top:10px}
+.quick{display:grid;grid-template-columns:1.2fr 1fr 1.4fr auto;gap:8px}
+.quick.two{grid-template-columns:1fr auto}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.alert{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:13.5px;font-weight:500}
+.alert.warn{background:#fff6e5;color:#a35f00}
+.alert.danger{background:var(--red-soft);color:#c4271d}
+.empty{text-align:center;color:var(--sub);padding:26px 0;font-size:14px}
+.seg{display:inline-flex;background:var(--bg2);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--sub)}
+.seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg.full{display:flex}
+.seg.full button{flex:1}
+
+/* Transactions */
+.list{display:flex;flex-direction:column}
+.tx{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 6px;border-radius:12px}
+.tx+.tx{box-shadow:0 -1px 0 var(--line)}
+.tx:hover{background:var(--bg2)}
+.tx-ic{width:38px;height:38px;border-radius:12px;background:var(--bg2);display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.tx-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.tx-main b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-main small{color:var(--sub);font-size:12.5px}
+.tx-amt{font-weight:600;white-space:nowrap}
+.tx-amt.income{color:var(--green)}
+.toolbar{display:grid;grid-template-columns:1fr auto 190px;gap:8px;align-items:center;margin-bottom:12px}
+.group-h{font-size:13px;color:var(--sub);font-weight:600;margin:16px 4px 6px}
+.group .card{padding:6px 10px;margin-bottom:0}
+
+/* Stats */
+.donut-wrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.donut{width:170px;height:170px;flex-shrink:0;margin:0 auto}
+.d-l{font-size:9px;fill:var(--sub)}
+.d-v{font-size:15px;font-weight:700;fill:var(--text)}
+.legend{flex:1;min-width:220px}
+.lg{display:grid;grid-template-columns:10px 1fr auto auto;gap:10px;align-items:center;padding:7px 0;font-size:14px}
+.lg i{width:10px;height:10px;border-radius:3px}
+.lg em{font-style:normal;color:var(--sub);font-size:13px;min-width:78px;text-align:right}
+.bars{width:100%;height:auto;display:block}
+.b-v{font-size:9px;fill:var(--sub)}
+.b-l{font-size:10px;fill:var(--sub)}
+
+/* Calendar */
+.cal-head,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-head div{text-align:center;font-size:12px;color:var(--sub);padding-bottom:6px}
+.cal-cell{min-height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;padding-top:6px;gap:1px;font-size:14px}
+.cal-cell:not(.empty):hover{background:var(--bg2)}
+.cal-cell.sun .cal-d{color:#e5484d}
+.cal-cell.sat .cal-d{color:#3b82f6}
+.cal-cell.today .cal-d{color:#fff;background:var(--blue);border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-weight:600}
+.cal-cell.sel{background:var(--blue-soft)}
+.cal-e{font-size:10px;font-weight:500;letter-spacing:-.02em}
+.cal-i{font-size:10px;color:var(--green);letter-spacing:-.02em}
+
+/* Settings */
+.cat-row{display:grid;grid-template-columns:56px 1fr 44px;gap:8px;margin-bottom:8px;align-items:center}
+.cat-row.add{grid-template-columns:56px 1fr auto;margin:14px 0 0}
+.icon-in{text-align:center;padding:0}
+.icon-btn{width:44px;height:44px;border-radius:12px;background:var(--bg2);color:var(--red);font-size:14px}
+.lock{font-size:12px;color:var(--sub);text-align:center}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;font-size:14px;border-top:1px solid var(--line)}
+.kv:first-of-type{border-top:0}
+.kv span{color:var(--sub)}
+.kv b{font-weight:500;text-align:right}
+.banner{background:var(--red-soft);color:#b42318;border-radius:var(--r);padding:16px 18px;margin-bottom:14px;font-size:14px}
+.banner b{display:block;margin-bottom:4px}
+.banner .btn{background:#fff;height:38px;font-size:14px}
+
+/* FAB, Modal, Toast */
+.fab{position:fixed;right:20px;bottom:calc(84px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--blue);color:#fff;font-size:30px;font-weight:300;box-shadow:0 6px 20px rgba(0,113,227,.3);z-index:15;display:grid;place-items:center}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:16px 20px calc(24px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.sheet-head b{font-size:16px}
+.sheet-head button{color:var(--blue);font-size:15px;padding:4px}
+.sheet-head .save{font-weight:600}
+.amount-wrap{display:flex;align-items:center;justify-content:center;gap:4px;margin:18px 0 6px}
+.amount-wrap span{font-size:30px;font-weight:600;color:var(--sub)}
+.amount-input{width:100%;max-width:300px;border:0;outline:none;font-size:40px;font-weight:700;letter-spacing:-.03em;text-align:center;background:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
+.chip{padding:8px 12px;border-radius:999px;background:var(--bg2);font-size:14px}
+.chip.on{background:var(--blue);color:#fff}
+.field{display:block;margin-top:12px}
+.field span{display:block;font-size:12.5px;color:var(--sub);margin-bottom:6px}
+.del-btn{width:100%;margin-top:18px;color:var(--red);background:var(--red-soft)}
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(29,29,31,.92);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:60;max-width:90vw;text-align:center}
+.toast.err{background:var(--red)}
+
+@media (max-width:600px){
+  .quick:not(.two){grid-template-columns:1fr 1fr}
+  .quick:not(.two) .btn{grid-column:span 2}
+  .toolbar{grid-template-columns:1fr}
+  .toolbar .seg{display:flex}
+  .toolbar .seg button{flex:1}
+  .big{font-size:30px}
+  .val{font-size:18px}
+  .card{padding:18px}
+}
+@media (min-width:600px){
+  .modal{align-items:center}
+  .sheet{border-radius:22px}
+}
+@media (min-width:900px){
+  .sidebar{display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;width:var(--side);background:var(--bg2);border-right:1px solid var(--line);padding:28px 14px;z-index:20}
+  .brand{font-weight:700;font-size:17px;letter-spacing:.02em;padding:0 12px 24px}
+  .brand small{display:block;color:var(--sub);font-weight:400;font-size:12px;letter-spacing:0}
+  .sidebar .nav-btn{flex:none;flex-direction:row;gap:12px;font-size:15px;padding:10px 12px;border-radius:10px;color:var(--text);justify-content:flex-start}
+  .sidebar .nav-btn.active{background:#fff;color:var(--blue);font-weight:600}
+  .side-add{margin-top:18px;width:100%}
+  .bottom-nav,.fab{display:none}
+  main{margin-left:var(--side);padding:0 40px 48px}
+  .topbar{padding-top:28px}
+  .toast{bottom:32px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">CAMPUS WALLET<small>대학생 가계부</small></div>
+    <nav id="sideNav"></nav>
+    <button class="btn primary side-add" data-action="add">+ 거래 추가</button>
+  </aside>
+
+  <main>
+    <div class="wrap">
+      <header class="topbar">
+        <h1 id="viewTitle">홈</h1>
+        <div class="month-nav" id="monthNav">
+          <button data-month="-1" aria-label="이전 달">‹</button>
+          <span id="monthLabel"></span>
+          <button data-month="1" aria-label="다음 달">›</button>
+        </div>
+        <span class="save-status" id="saveStatus" aria-live="polite"></span>
+      </header>
+      <div id="banner"></div>
+      <div id="view"></div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" id="bottomNav"></nav>
+  <button class="fab" data-action="add" aria-label="거래 추가">+</button>
+</div>
+
+<!-- 거래 입력 시트 -->
+<div class="modal" id="modal" hidden>
+  <form class="sheet" id="txForm" autocomplete="off">
+    <div class="sheet-head">
+      <button type="button" data-action="cancel">취소</button>
+      <b id="fTitle">거래 추가</b>
+      <button type="submit" class="save">저장</button>
+    </div>
+    <div class="seg full" id="fTypeSeg">
+      <button type="button" data-type="expense">지출</button>
+      <button type="button" data-type="income">수입</button>
+    </div>
+    <div class="amount-wrap"><span>₩</span><input id="fAmount" class="amount-input" inputmode="numeric" placeholder="0" data-money></div>
+    <div class="chips" id="fCats"></div>
+    <label class="field"><span>날짜</span><input type="date" id="fDate" class="input" required></label>
+    <label class="field"><span>메모</span><input id="fMemo" class="input" maxlength="60" placeholder="예: 학식, 버스비"></label>
+    <button type="button" class="btn del-btn" id="fDelete" data-action="delete">거래 삭제</button>
+  </form>
+</div>
+
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+'use strict';
+
+/* =========================================================
+   1. UTILS
+   ========================================================= */
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const monthKey = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+const todayStr = () => ymd(new Date());
+const shiftMonth = (mk, n) => { const [y, m] = mk.split('-').map(Number); return monthKey(new Date(y, m - 1 + n, 1)); };
+const daysInMonth = mk => { const [y, m] = mk.split('-').map(Number); return new Date(y, m, 0).getDate(); };
+const won = n => '₩' + Math.round(n).toLocaleString('ko-KR');
+const short = n => n >= 10000 ? (n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '') + '만' : Math.round(n).toLocaleString('ko-KR');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const parseAmount = s => { const d = String(s ?? '').replace(/[^\d]/g, ''); return d ? Number(d) : NaN; };
+const clone = o => JSON.parse(JSON.stringify(o));
+const isValidDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s + 'T00:00:00').getTime());
+const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+
+/* =========================================================
+   2. STORAGE ADAPTER
+   - 지금은 localStorage. 추후 Supabase 등으로 교체 시
+     같은 read/write 인터페이스만 구현하면 됩니다.
+   ========================================================= */
+const LocalStorageAdapter = {
+  read(key) { return window.localStorage.getItem(key); },
+  write(key, value) { window.localStorage.setItem(key, value); }
+};
+
+/* =========================================================
+   3. DATA LAYER (UI와 완전히 분리)
+   ========================================================= */
+const DataStore = (() => {
+  const KEY = 'campus_wallet_v1';
+  const VERSION = 1;
+  const FALLBACK = { expense: 'etc_expense', income: 'etc_income' };
+  const DEFAULT_CATEGORIES = [
+    { id: 'food', name: '식비', type: 'expense', icon: '🍚' },
+    { id: 'cafe', name: '카페', type: 'expense', icon: '☕' },
+    { id: 'transport', name: '교통', type: 'expense', icon: '🚌' },
+    { id: 'study', name: '학업', type: 'expense', icon: '📚' },
+    { id: 'shopping', name: '쇼핑', type: 'expense', icon: '🛍️' },
+    { id: 'culture', name: '문화', type: 'expense', icon: '🎬' },
+    { id: 'living', name: '생활', type: 'expense', icon: '🏠' },
+    { id: 'etc_expense', name: '기타', type: 'expense', icon: '•' },
+    { id: 'allowance', name: '용돈', type: 'income', icon: '💰' },
+    { id: 'parttime', name: '아르바이트', type: 'income', icon: '💼' },
+    { id: 'scholarship', name: '장학금', type: 'income', icon: '🎓' },
+    { id: 'etc_income', name: '기타', type: 'income', icon: '•' }
+  ];
+  const DEFAULT_SETTINGS = { defaultBudget: 500000, userName: '' };
+
+  let adapter = LocalStorageAdapter;
+  let state = null;
+  let mode = 'ok';            // 'ok' | 'corrupt' | 'unavailable'
+  let corruptRaw = null;
+  const listeners = {};
+
+  const on = (ev, fn) => { (listeners[ev] = listeners[ev] || []).push(fn); };
+  const emit = (ev, payload) => (listeners[ev] || []).forEach(fn => fn(payload));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+  function emptyState() {
+    return { version: VERSION, transactions: [], budgets: {}, categories: clone(DEFAULT_CATEGORIES), settings: { ...DEFAULT_SETTINGS }, updatedAt: null };
+  }
+
+  function sampleState() {
+    const s = emptyState();
+    const now = new Date();
+    const plan = [
+      ['expense', 4500, 3, 'cafe', '아메리카노'], ['expense', 8000, 4, 'food', '학식'],
+      ['expense', 1450, 5, 'transport', '버스'], ['expense', 23000, 7, 'study', '전공 서적'],
+      ['expense', 12000, 9, 'food', '친구랑 저녁'], ['expense', 35000, 12, 'shopping', '티셔츠'],
+      ['expense', 15000, 14, 'culture', '영화'], ['expense', 6500, 16, 'cafe', '카페 공부'],
+      ['expense', 55000, 18, 'living', '휴대폰 요금'], ['expense', 9000, 21, 'food', '점심'],
+      ['expense', 27000, 24, 'food', '장보기'], ['expense', 4800, 26, 'cafe', '라떼']
+    ];
+    for (let k = 5; k >= 0; k--) {
+      const base = new Date(now.getFullYear(), now.getMonth() - k, 1);
+      const y = base.getFullYear(), mo = base.getMonth();
+      const limit = k === 0 ? now.getDate() : new Date(y, mo + 1, 0).getDate();
+      const push = (type, amount, day, category, memo) => {
+        if (day > limit) return;
+        const t = Date.now();
+        s.transactions.push({ id: uid(), type, amount, date: ymd(new Date(y, mo, day)), category, memo, createdAt: t, updatedAt: t });
+      };
+      push('income', 500000, 1, 'allowance', '용돈');
+      push('income', 320000 + ((5 - k) % 3) * 40000, 10, 'parttime', '카페 알바');
+      plan.forEach(([t, a, d, c, m], i) => push(t, Math.round(a * (0.8 + ((i + k) % 5) * 0.1) / 100) * 100, d, c, m));
+    }
+    return s;
+  }
+
+  /* ---- 구조 검증 ---- */
+  function validate(o) {
+    const errs = [];
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return { ok: false, errors: ['최상위 데이터가 객체 형식이 아닙니다.'] };
+    if (!Array.isArray(o.transactions)) errs.push('transactions(거래 내역) 배열이 없습니다.');
+    else {
+      const ids = new Set();
+      o.transactions.forEach((t, i) => {
+        const n = `거래 #${i + 1}`;
+        if (!t || typeof t !== 'object') { errs.push(`${n}: 형식 오류`); return; }
+        if (typeof t.id !== 'string' || !t.id) errs.push(`${n}: id 없음`);
+        else if (ids.has(t.id)) errs.push(`${n}: 중복 id`);
+        else ids.add(t.id);
+        if (t.type !== 'income' && t.type !== 'expense') errs.push(`${n}: type 오류`);
+        if (typeof t.amount !== 'number' || !Number.isFinite(t.amount) || t.amount <= 0) errs.push(`${n}: 금액 오류`);
+        if (!isValidDate(t.date)) errs.push(`${n}: 날짜 오류`);
+        if (typeof t.category !== 'string') errs.push(`${n}: 카테고리 오류`);
+      });
+    }
+    if (o.budgets !== undefined) {
+      if (!o.budgets || typeof o.budgets !== 'object' || Array.isArray(o.budgets)) errs.push('budgets(예산) 형식 오류');
+      else Object.entries(o.budgets).forEach(([k, v]) => {
+        if (!/^\d{4}-\d{2}$/.test(k) || typeof v !== 'number' || !Number.isFinite(v) || v < 0) errs.push(`예산 ${k}: 값 오류`);
+      });
+    }
+    if (!Array.isArray(o.categories)) errs.push('categories(카테고리) 배열이 없습니다.');
+    else o.categories.forEach((c, i) => {
+      if (!c || typeof c.id !== 'string' || typeof c.name !== 'string' || (c.type !== 'income' && c.type !== 'expense')) errs.push(`카테고리 #${i + 1}: 형식 오류`);
+    });
+    if (o.settings !== undefined) {
+      if (!o.settings || typeof o.settings !== 'object' || Array.isArray(o.settings)) errs.push('settings(설정) 형식 오류');
+      else if (o.settings.defaultBudget !== undefined && (typeof o.settings.defaultBudget !== 'number' || o.settings.defaultBudget < 0)) errs.push('기본 예산 값 오류');
+    }
+    return { ok: errs.length === 0, errors: errs.length > 6 ? [...errs.slice(0, 6), `외 ${errs.length - 6}건`] : errs };
+  }
+
+  function normalize(o) {
+    const s = emptyState();
+    s.categories = o.categories.map(c => ({
+      id: c.id, name: c.name.trim().slice(0, 20) || '이름 없음', type: c.type,
+      icon: typeof c.icon === 'string' && c.icon.trim() ? c.icon.trim().slice(0, 4) : '•'
+    }));
+    Object.values(FALLBACK).forEach(fid => {
+      if (!s.categories.some(c => c.id === fid)) s.categories.push(clone(DEFAULT_CATEGORIES.find(c => c.id === fid)));
+    });
+    const ids = new Set(s.categories.map(c => c.id));
+    s.transactions = o.transactions.map(t => ({
+      id: t.id, type: t.type, amount: Math.round(t.amount), date: t.date,
+      category: ids.has(t.category) ? t.category : FALLBACK[t.type],
+      memo: typeof t.memo === 'string' ? t.memo.slice(0, 60) : '',
+      createdAt: Number(t.createdAt) || Date.now(), updatedAt: Number(t.updatedAt) || Date.now()
+    }));
+    s.budgets = { ...(o.budgets || {}) };
+    s.settings = { ...DEFAULT_SETTINGS, ...(o.settings || {}) };
+    s.updatedAt = typeof o.updatedAt === 'string' ? o.updatedAt : null;
+    return s;
+  }
+
+  /* ---- 불러오기 / 저장 ---- */
+  function loadData() {
+    let raw;
+    try { raw = adapter.read(KEY); }
+    catch (e) {
+      mode = 'unavailable'; state = sampleState();
+      return { status: 'unavailable', error: e };
+    }
+    if (raw === null) {               // 저장 데이터가 없을 때만 예시 데이터 생성
+      mode = 'ok'; state = sampleState();
+      const saved = saveData();
+      return { status: 'seeded', saved };
+    }
+    try {
+      const obj = JSON.parse(raw);
+      const v = validate(obj);
+      if (!v.ok) throw new Error(v.errors.join(' / '));
+      state = normalize(obj); mode = 'ok'; corruptRaw = null;
+      return { status: 'loaded' };
+    } catch (e) {
+      // 손상 데이터: 덮어쓰지 않고 보존. 별도 키에 사본도 남김.
+      mode = 'corrupt'; corruptRaw = raw; state = emptyState();
+      try { adapter.write(KEY + '_corrupt_backup', raw); } catch (_) { /* ignore */ }
+      return { status: 'corrupt', error: e };
+    }
+  }
+
+  function saveData() {
+    if (mode === 'corrupt') {
+      emit('error', '저장된 데이터가 손상되어 보호 중입니다. 설정에서 백업 복원 또는 초기화를 선택하세요.');
+      return false;
+    }
+    try {
+      const stamp = new Date().toISOString();
+      adapter.write(KEY, JSON.stringify({ ...state, version: VERSION, updatedAt: stamp }));
+      state.updatedAt = stamp;
+      emit('saved', stamp);
+      return true;
+    } catch (e) {
+      const quota = e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014);
+      emit('error', quota ? '저장 공간이 부족해 저장하지 못했습니다.' : '브라우저 저장소에 접근할 수 없어 저장하지 못했습니다.');
+      return false;
+    }
+  }
+
+  // 변경 → 즉시 저장. 저장 실패 시 변경을 되돌려 화면과 저장소를 일치시킴.
+  function commit(mutator) {
+    const snapshot = clone(state);
+    const result = mutator(state);
+    if (!saveData()) { state = snapshot; emit('change'); return null; }
+    emit('change');
+    return result === undefined ? true : result;
+  }
+
+  /* ---- 거래 ---- */
+  function cleanTx(input, base = {}) {
+    const t = { ...base, ...input };
+    const amount = Math.round(Number(t.amount));
+    if (t.type !== 'income' && t.type !== 'expense') throw new Error('수입/지출 유형이 올바르지 않습니다.');
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error('금액을 1원 이상 입력하세요.');
+    if (amount > 999999999999) throw new Error('금액이 너무 큽니다.');
+    if (!isValidDate(t.date)) throw new Error('날짜를 확인하세요.');
+    const cat = state.categories.find(c => c.id === t.category && c.type === t.type);
+    const now = Date.now();
+    return {
+      id: t.id || uid(), type: t.type, amount, date: t.date,
+      category: cat ? cat.id : FALLBACK[t.type],
+      memo: String(t.memo || '').trim().slice(0, 60),
+      createdAt: t.createdAt || now, updatedAt: now
+    };
+  }
+  function addTransaction(input) {
+    const tx = cleanTx({ ...input, id: undefined, createdAt: undefined });
+    return commit(s => { s.transactions.push(tx); return tx; });
+  }
+  function updateTransaction(id, patch) {
+    const i = state.transactions.findIndex(t => t.id === id);
+    if (i < 0) throw new Error('거래를 찾을 수 없습니다.');
+    const tx = cleanTx({ ...patch, id }, state.transactions[i]);
+    return commit(s => { s.transactions[i] = tx; return tx; });
+  }
+  function deleteTransaction(id) {
+    return commit(s => { s.transactions = s.transactions.filter(t => t.id !== id); });
+  }
+
+  /* ---- 예산 / 설정 ---- */
+  function updateBudget(month, amount) {
+    if (!/^\d{4}-\d{2}$/.test(month)) throw new Error('월 형식이 올바르지 않습니다.');
+    if (amount === null) return commit(s => { delete s.budgets[month]; });
+    const v = Math.round(Number(amount));
+    if (!Number.isFinite(v) || v < 0) throw new Error('예산을 0원 이상 입력하세요.');
+    return commit(s => { s.budgets[month] = v; });
+  }
+  function updateSettings(patch) {
+    if (patch.defaultBudget !== undefined) {
+      const v = Math.round(Number(patch.defaultBudget));
+      if (!Number.isFinite(v) || v < 0) throw new Error('기본 예산을 0원 이상 입력하세요.');
+      patch = { ...patch, defaultBudget: v };
+    }
+    return commit(s => { s.settings = { ...s.settings, ...patch }; });
+  }
+
+  /* ---- 카테고리 ---- */
+  function checkName(name, type, exceptId) {
+    const n = String(name || '').trim().slice(0, 20);
+    if (!n) throw new Error('카테고리 이름을 입력하세요.');
+    if (state.categories.some(c => c.type === type && c.name === n && c.id !== exceptId)) throw new Error('이미 있는 카테고리입니다.');
+    return n;
+  }
+  function addCategory({ name, type, icon }) {
+    if (type !== 'income' && type !== 'expense') throw new Error('유형 오류');
+    const n = checkName(name, type);
+    const cat = { id: 'c_' + uid(), name: n, type, icon: String(icon || '').trim().slice(0, 4) || '•' };
+    return commit(s => { s.categories.push(cat); return cat; });
+  }
+  function updateCategory(id, patch) {
+    const i = state.categories.findIndex(c => c.id === id);
+    if (i < 0) throw new Error('카테고리를 찾을 수 없습니다.');
+    const cur = state.categories[i];
+    const next = { ...cur };
+    if (patch.name !== undefined) next.name = checkName(patch.name, cur.type, id);
+    if (patch.icon !== undefined) next.icon = String(patch.icon).trim().slice(0, 4) || '•';
+    return commit(s => { s.categories[i] = next; });
+  }
+  function deleteCategory(id) {
+    const cat = state.categories.find(c => c.id === id);
+    if (!cat) throw new Error('카테고리를 찾을 수 없습니다.');
+    if (isFallback(id)) throw new Error('기본 카테고리는 삭제할 수 없습니다.');
+    return commit(s => {
+      s.transactions.forEach(t => { if (t.category === id) t.category = FALLBACK[cat.type]; });
+      s.categories = s.categories.filter(c => c.id !== id);
+    });
+  }
+  const isFallback = id => Object.values(FALLBACK).includes(id);
+
+  /* ---- 백업 / 복원 / 초기화 ---- */
+  function exportData() {
+    return JSON.stringify({ app: 'CAMPUS WALLET', exportedAt: new Date().toISOString(), ...state }, null, 2);
+  }
+  function importData(obj) {
+    const v = validate(obj);
+    if (!v.ok) throw new Error('백업 구조 오류: ' + v.errors.join(' / '));
+    const prev = { state, mode, corruptRaw };
+    state = normalize(obj); mode = 'ok';
+    if (!saveData()) { ({ state, mode, corruptRaw } = prev); emit('change'); return false; }
+    corruptRaw = null; emit('change'); return true;
+  }
+  function resetData() {
+    const prev = { state, mode, corruptRaw };
+    state = emptyState(); mode = 'ok';
+    if (!saveData()) { ({ state, mode, corruptRaw } = prev); emit('change'); return false; }
+    corruptRaw = null; emit('change'); return true;
+  }
+
+  /* ---- 조회 (selectors) ---- */
+  const getState = () => state;
+  const getMode = () => mode;
+  const getCorruptRaw = () => corruptRaw;
+  const category = id => state.categories.find(c => c.id === id) || { id, name: '기타', icon: '•', type: 'expense' };
+  const categoriesOf = type => state.categories.filter(c => c.type === type);
+  const txOfMonth = mk => state.transactions.filter(t => t.date.startsWith(mk));
+  const sortTx = list => [...list].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+  const hasCustomBudget = mk => hasOwn(state.budgets, mk);
+  const budgetFor = mk => hasCustomBudget(mk) ? state.budgets[mk] : state.settings.defaultBudget;
+  function summary(mk) {
+    let income = 0, expense = 0;
+    txOfMonth(mk).forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount; });
+    const budget = budgetFor(mk);
+    const rate = budget > 0 ? expense / budget * 100 : (expense > 0 ? 100 : 0);
+    return { income, expense, budget, remaining: budget - expense, rate };
+  }
+
+  return {
+    KEY, on, loadData, saveData, validate,
+    addTransaction, updateTransaction, deleteTransaction,
+    updateBudget, updateSettings, addCategory, updateCategory, deleteCategory, isFallback,
+    exportData, importData, resetData,
+    getState, getMode, getCorruptRaw, category, categoriesOf, txOfMonth, sortTx, summary, budgetFor, hasCustomBudget
+  };
+})();
+
+/* =========================================================
+   4. FUTURE INTEGRATIONS (현재 미연결)
+   - OpenAI: DataStore.getState()를 요약해 분석 요청
+   - Google Apps Script: DataStore.on('change')에서 시트 동기화
+   - Supabase: LocalStorageAdapter와 같은 인터페이스의 어댑터 구현
+   ========================================================= */
+const Integrations = { openai: null, sheets: null, supabase: null };
+
+/* =========================================================
+   5. UI LAYER
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const UI = { view: 'home', month: monthKey(new Date()), q: '', type: 'all', cat: 'all', calDate: null, edit: null, fType: 'expense', fCat: null, catTab: 'expense' };
+const VIEWS = { home: '홈', tx: '내역', stats: '통계', budget: '예산', calendar: '캘린더', settings: '설정' };
+const PALETTE = ['#0071e3', '#5ac8fa', '#34c759', '#ff9500', '#ff2d55', '#af52de', '#5856d6', '#ffcc00', '#8e8e93', '#30b0c7'];
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONS = {
+  home: svg('<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'),
+  tx: svg('<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r=".6"/><circle cx="3.5" cy="12" r=".6"/><circle cx="3.5" cy="18" r=".6"/>'),
+  stats: svg('<path d="M3 21h18M6 17v-5M11 17V7M16 17v-8M21 17v-3"/>'),
+  budget: svg('<rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M3 10h18M16 15h2"/>'),
+  calendar: svg('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+  settings: svg('<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>')
+};
+
+const fmtMonth = mk => { const [y, m] = mk.split('-'); return `${y}년 ${Number(m)}월`; };
+const fmtDate = (ds, withDow) => {
+  const d = new Date(ds + 'T00:00:00');
+  return `${d.getMonth() + 1}월 ${d.getDate()}일` + (withDow ? ` (${'일월화수목금토'[d.getDay()]})` : '');
+};
+const fmtDateTime = iso => new Date(iso).toLocaleString('ko-KR');
+const defaultDate = () => UI.month === monthKey(new Date()) ? todayStr() : UI.month + '-01';
+const empty = msg => `<div class="empty">${msg}</div>`;
+
+function setStatus(text, cls) { const el = $('#saveStatus'); el.textContent = text; el.className = 'save-status ' + (cls || ''); }
+let toastTimer;
+function toast(msg, isErr) {
+  const el = $('#toast'); el.textContent = msg; el.className = 'toast' + (isErr ? ' err' : ''); el.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, isErr ? 4000 : 2200);
+}
+
+function progress(rate) {
+  const cls = rate > 100 ? 'over' : rate >= 80 ? 'warn' : '';
+  return `<div class="progress ${cls}"><i style="width:${Math.min(Math.max(rate, 0), 100)}%"></i></div>`;
+}
+function budgetAlert(s) {
+  if (s.remaining < 0) return `<div class="alert danger">예산을 ${won(-s.remaining)} 초과했습니다.</div>`;
+  if (s.rate >= 80 && s.budget > 0) return `<div class="alert warn">예산의 ${s.rate.toFixed(0)}%를 사용했습니다. 남은 기간 지출에 유의하세요.</div>`;
+  return '';
+}
+function txRow(t, showDate = true) {
+  const c = DataStore.category(t.category);
+  return `<button class="tx" data-edit="${esc(t.id)}">
+    <span class="tx-ic">${esc(c.icon)}</span>
+    <span class="tx-main"><b>${esc(t.memo || c.name)}</b><small>${esc(c.name)}${showDate ? ' · ' + fmtDate(t.date) : ''}</small></span>
+    <span class="tx-amt ${t.type}">${t.type === 'income' ? '+' : '-'}${won(t.amount)}</span>
+  </button>`;
+}
+function catOptions(type, sel) {
+  const cats = type ? DataStore.categoriesOf(type) : DataStore.getState().categories;
+  return cats.map(c => `<option value="${esc(c.id)}" ${c.id === sel ? 'selected' : ''}>${esc(c.icon)} ${esc(c.name)}${!type ? (c.type === 'income' ? ' (수입)' : ' (지출)') : ''}</option>`).join('');
+}
+
+/* ---------- Views ---------- */
+function viewHome() {
+  const s = DataStore.summary(UI.month);
+  const recent = DataStore.sortTx(DataStore.txOfMonth(UI.month)).slice(0, 5);
+  return `
+  <section class="card hero">
+    <div class="label">남은 예산</div>
+    <div class="big ${s.remaining < 0 ? 'neg' : ''}">${s.remaining < 0 ? '-' : ''}${won(Math.abs(s.remaining))}</div>
+    ${progress(s.rate)}
+    <div class="row sub"><span>예산 ${won(s.budget)}</span><span>${s.rate.toFixed(0)}% 사용</span></div>
+    ${budgetAlert(s)}
+  </section>
+  <div class="grid2">
+    <div class="card"><div class="label">총수입</div><div class="val inc">${won(s.income)}</div></div>
+    <div class="card"><div class="label">총지출</div><div class="val">${won(s.expense)}</div></div>
+  </div>
+  <section class="card">
+    <h3>빠른 지출 추가</h3>
+    <form id="quickForm" class="quick" autocomplete="off">
+      <input id="qAmount" class="input" inputmode="numeric" placeholder="금액" data-money>
+      <select id="qCat" class="input" aria-label="카테고리">${catOptions('expense')}</select>
+      <input id="qMemo" class="input" placeholder="메모 (선택)" maxlength="60">
+      <button class="btn primary">추가</button>
+    </form>
+    <p class="hint">${fmtDate(defaultDate(), true)} 날짜로 기록됩니다.</p>
+  </section>
+  <section class="card">
+    <div class="card-head"><h3>최근 거래</h3><button class="link" data-nav="tx">전체 보기</button></div>
+    ${recent.length ? `<div class="list">${recent.map(t => txRow(t)).join('')}</div>` : empty('이번 달 거래가 없습니다.')}
+  </section>`;
+}
+
+function viewTx() {
+  const typeLabel = { all: '전체', expense: '지출', income: '수입' };
+  return `
+  <div class="toolbar">
+    <input id="search" class="input" type="search" placeholder="메모·카테고리·금액 검색" value="${esc(UI.q)}">
+    <div class="seg">${Object.keys(typeLabel).map(t => `<button data-ftype="${t}" class="${UI.type === t ? 'on' : ''}">${typeLabel[t]}</button>`).join('')}</div>
+    <select id="catFilter" class="input" aria-label="카테고리 필터"><option value="all">모든 카테고리</option>${catOptions(UI.type === 'all' ? null : UI.type, UI.cat)}</select>
+  </div>
+  <div id="txSummary" class="row sub" style="padding:0 4px"></div>
+  <div id="txList"></div>`;
+}
+function renderTxList() {
+  const q = UI.q.trim().toLowerCase();
+  const list = DataStore.sortTx(DataStore.txOfMonth(UI.month).filter(t =>
+    (UI.type === 'all' || t.type === UI.type) &&
+    (UI.cat === 'all' || t.category === UI.cat) &&
+    (!q || `${t.memo} ${DataStore.category(t.category).name} ${t.amount}`.toLowerCase().includes(q))
+  ));
+  let inc = 0, exp = 0;
+  list.forEach(t => t.type === 'income' ? inc += t.amount : exp += t.amount);
+  $('#txSummary').innerHTML = `<span>${list.length}건</span><span>수입 ${won(inc)} · 지출 ${won(exp)}</span>`;
+  if (!list.length) { $('#txList').innerHTML = `<div class="card" style="margin-top:12px">${empty('조건에 맞는 거래가 없습니다.')}</div>`; return; }
+  const groups = {};
+  list.forEach(t => (groups[t.date] = groups[t.date] || []).push(t));
+  $('#txList').innerHTML = Object.entries(groups).map(([d, items]) =>
+    `<div class="group"><div class="group-h">${fmtDate(d, true)}</div><div class="card list">${items.map(t => txRow(t, false)).join('')}</div></div>`
+  ).join('');
+}
+
+function elapsedDays(mk) {
+  const cur = monthKey(new Date());
+  if (mk === cur) return new Date().getDate();
+  return mk < cur ? daysInMonth(mk) : 0;
+}
+function donut(items, total) {
+  const r = 54, C = 2 * Math.PI * r; let off = 0;
+  const segs = items.map(it => {
+    const len = it.value / total * C;
+    const seg = `<circle r="${r}" cx="70" cy="70" fill="none" stroke="${it.color}" stroke-width="18" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;
+    off += len; return seg;
+  }).join('');
+  return `<svg class="donut" viewBox="0 0 140 140" role="img" aria-label="카테고리별 소비 비율">
+    <circle r="${r}" cx="70" cy="70" fill="none" stroke="#f0f0f3" stroke-width="18"/>${segs}
+    <text x="70" y="65" text-anchor="middle" class="d-l">총지출</text>
+    <text x="70" y="84" text-anchor="middle" class="d-v">${short(total)}</text></svg>`;
+}
+function barChart(data) {
+  const W = 340, H = 170, P = 16, max = Math.max(...data.map(d => d.value), 1), bw = (W - P * 2) / data.length;
+  const bars = data.map((d, i) => {
+    const h = Math.max((H - 52) * d.value / max, d.value ? 3 : 0);
+    const x = P + i * bw + bw * 0.22, w = bw * 0.56, y = H - 24 - h, cx = P + i * bw + bw / 2;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${d.active ? '#0071e3' : '#cfe0f7'}"/>
+      <text x="${cx}" y="${y - 6}" text-anchor="middle" class="b-v">${d.value ? short(d.value) : '0'}</text>
+      <text x="${cx}" y="${H - 6}" text-anchor="middle" class="b-l">${d.label}</text>`;
+  }).join('');
+  return `<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 지출 추이">${bars}</svg>`;
+}
+function viewStats() {
+  const mk = UI.month, s = DataStore.summary(mk);
+  const byCat = {};
+  DataStore.txOfMonth(mk).filter(t => t.type === 'expense').forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount; });
+  const items = Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([id, v], i) => ({ c: DataStore.category(id), value: v, color: PALETTE[i % PALETTE.length] }));
+  const days = elapsedDays(mk), avg = days ? s.expense / days : 0, top = items[0];
+  const months = Array.from({ length: 6 }, (_, i) => shiftMonth(mk, i - 5)).map(m => ({ label: Number(m.slice(5)) + '월', value: DataStore.summary(m).expense, active: m === mk }));
+  return `
+  <div class="grid3">
+    <div class="card"><div class="label">총지출</div><div class="val">${won(s.expense)}</div><small class="sub">수입 ${won(s.income)}</small></div>
+    <div class="card"><div class="label">일평균 지출</div><div class="val">${won(avg)}</div><small class="sub">${days}일 기준</small></div>
+    <div class="card"><div class="label">주요 소비 카테고리</div><div class="val">${top ? esc(top.c.icon + ' ' + top.c.name) : '-'}</div><small class="sub">${top ? `${won(top.value)} · ${(top.value / s.expense * 100).toFixed(0)}%` : '지출 없음'}</small></div>
+  </div>
+  <section class="card"><h3>카테고리별 소비 비율</h3>
+    ${items.length ? `<div class="donut-wrap">${donut(items, s.expense)}<div class="legend">${items.map(it => `
+      <div class="lg"><i style="background:${it.color}"></i><span>${esc(it.c.icon)} ${esc(it.c.name)}</span><b>${(it.value / s.expense * 100).toFixed(1)}%</b><em>${won(it.value)}</em></div>`).join('')}</div></div>`
+      : empty('이번 달 지출이 없습니다.')}
+  </section>
+  <section class="card"><h3>월별 지출 추이</h3>${barChart(months)}</section>`;
+}
+
+function viewBudget() {
+  const mk = UI.month, s = DataStore.summary(mk), st = DataStore.getState(), custom = DataStore.hasCustomBudget(mk);
+  const cur = monthKey(new Date());
+  const leftDays = mk === cur ? daysInMonth(mk) - new Date().getDate() + 1 : mk > cur ? daysInMonth(mk) : 0;
+  const perDay = leftDays && s.remaining > 0 ? s.remaining / leftDays : 0;
+  return `
+  <section class="card hero">
+    <div class="label">${fmtMonth(mk)} 남은 예산</div>
+    <div class="big ${s.remaining < 0 ? 'neg' : ''}">${s.remaining < 0 ? '-' : ''}${won(Math.abs(s.remaining))}</div>
+    ${progress(s.rate)}
+    <div class="row sub"><span>${won(s.expense)} / ${won(s.budget)}</span><span>${s.rate.toFixed(1)}% 사용</span></div>
+    ${budgetAlert(s)}
+    <div class="grid2 inner">
+      <div><div class="label">사용 금액</div><div class="val">${won(s.expense)}</div></div>
+      <div><div class="label">하루 사용 가능</div><div class="val">${won(perDay)}</div></div>
+    </div>
+  </section>
+  <section class="card">
+    <h3>${fmtMonth(mk)} 예산</h3>
+    <form id="budgetForm" class="quick two" autocomplete="off">
+      <input id="bAmount" class="input" inputmode="numeric" data-money value="${s.budget.toLocaleString('ko-KR')}" aria-label="이번 달 예산">
+      <button class="btn primary">저장</button>
+    </form>
+    <p class="hint">${custom ? '이 달에만 적용되는 예산입니다. <button class="link" data-action="clearBudget" style="font-size:12.5px">기본 예산으로 되돌리기</button>' : '현재 기본 예산이 적용 중입니다.'}</p>
+  </section>
+  <section class="card">
+    <h3>기본 월 예산</h3>
+    <form id="defBudgetForm" class="quick two" autocomplete="off">
+      <input id="dAmount" class="input" inputmode="numeric" data-money value="${st.settings.defaultBudget.toLocaleString('ko-KR')}" aria-label="기본 예산">
+      <button class="btn">저장</button>
+    </form>
+    <p class="hint">개별 예산을 정하지 않은 달에 자동 적용됩니다.</p>
+  </section>`;
+}
+
+function viewCalendar() {
+  const mk = UI.month, [y, m] = mk.split('-').map(Number);
+  const first = new Date(y, m - 1, 1).getDay(), dim = daysInMonth(mk), today = todayStr();
+  if (!UI.calDate || !UI.calDate.startsWith(mk)) UI.calDate = mk === monthKey(new Date()) ? today : mk + '-01';
+  const map = {};
+  DataStore.txOfMonth(mk).forEach(t => { const o = map[t.date] = map[t.date] || { e: 0, i: 0 }; t.type === 'expense' ? o.e += t.amount : o.i += t.amount; });
+  let cells = '';
+  for (let i = 0; i < first; i++) cells += '<div class="cal-cell empty"></div>';
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${mk}-${pad2(d)}`, o = map[ds], dow = (first + d - 1) % 7;
+    const cls = [ds === UI.calDate && 'sel', ds === today && 'today', dow === 0 && 'sun', dow === 6 && 'sat'].filter(Boolean).join(' ');
+    cells += `<button class="cal-cell ${cls}" data-date="${ds}" aria-label="${fmtDate(ds)}">
+      <span class="cal-d">${d}</span>
+      ${o && o.e ? `<span class="cal-e">${o.e >= 100000 ? short(o.e) : o.e.toLocaleString('ko-KR')}</span>` : ''}
+      ${o && o.i ? `<span class="cal-i">+${short(o.i)}</span>` : ''}
+    </button>`;
+  }
+  const dayTx = DataStore.sortTx(DataStore.getState().transactions.filter(t => t.date === UI.calDate));
+  let de = 0, di = 0; dayTx.forEach(t => t.type === 'expense' ? de += t.amount : di += t.amount);
+  return `
+  <section class="card">
+    <div class="cal-head">${'일월화수목금토'.split('').map(w => `<div>${w}</div>`).join('')}</div>
+    <div class="cal-grid">${cells}</div>
+  </section>
+  <section class="card">
+    <div class="card-head"><h3>${fmtDate(UI.calDate, true)}</h3><button class="link" data-action="addOnDate">+ 추가</button></div>
+    <div class="row sub" style="margin-bottom:6px"><span>지출 ${won(de)}</span><span>수입 ${won(di)}</span></div>
+    ${dayTx.length ? `<div class="list">${dayTx.map(t => txRow(t, false)).join('')}</div>` : empty('이 날의 거래가 없습니다.')}
+  </section>`;
+}
+
+function viewSettings() {
+  const st = DataStore.getState(), cats = DataStore.categoriesOf(UI.catTab);
+  return `
+  <section class="card">
+    <div class="card-head"><h3>카테고리</h3>
+      <div class="seg"><button data-cattab="expense" class="${UI.catTab === 'expense' ? 'on' : ''}">지출</button><button data-cattab="income" class="${UI.catTab === 'income' ? 'on' : ''}">수입</button></div>
+    </div>
+    <p class="hint" style="margin:0 0 12px">아이콘·이름을 고치면 바로 저장됩니다.</p>
+    ${cats.map(c => `
+      <div class="cat-row" data-cat="${esc(c.id)}">
+        <input class="input icon-in" value="${esc(c.icon)}" maxlength="4" data-catfield="icon" aria-label="아이콘">
+        <input class="input" value="${esc(c.name)}" maxlength="20" data-catfield="name" aria-label="이름">
+        ${DataStore.isFallback(c.id) ? '<span class="lock">기본</span>' : `<button class="icon-btn" data-action="delCat" data-id="${esc(c.id)}" aria-label="삭제">✕</button>`}
+      </div>`).join('')}
+    <form id="catForm" class="cat-row add" autocomplete="off">
+      <input id="cIcon" class="input icon-in" placeholder="🙂" maxlength="4" aria-label="새 아이콘">
+      <input id="cName" class="input" placeholder="새 ${UI.catTab === 'expense' ? '지출' : '수입'} 카테고리" maxlength="20">
+      <button class="btn primary">추가</button>
+    </form>
+  </section>
+  <section class="card">
+    <h3>데이터 백업</h3>
+    <p class="hint" style="margin:0">브라우저 데이터가 삭제될 경우를 대비해 정기적으로 백업하세요.</p>
+    <div class="btn-row"><button class="btn" data-action="export">JSON 내보내기</button><button class="btn" data-action="import">JSON 불러오기</button></div>
+  </section>
+  <section class="card">
+    <h3>저장 정보</h3>
+    <div class="kv"><span>저장 위치</span><b>브라우저 localStorage</b></div>
+    <div class="kv"><span>저장 키</span><b>${DataStore.KEY}</b></div>
+    <div class="kv"><span>거래 수</span><b>${st.transactions.length}건</b></div>
+    <div class="kv"><span>마지막 저장</span><b>${st.updatedAt ? fmtDateTime(st.updatedAt) : '-'}</b></div>
+  </section>
+  <section class="card">
+    <h3>초기화</h3>
+    <p class="hint" style="margin:0">모든 거래·예산·카테고리·설정이 삭제됩니다.</p>
+    <div class="btn-row"><button class="btn danger-btn" data-action="reset">전체 데이터 초기화</button></div>
+  </section>`;
+}
+
+function renderBanner() {
+  const mode = DataStore.getMode(), el = $('#banner');
+  if (mode === 'corrupt') {
+    el.innerHTML = `<div class="banner"><b>저장된 데이터를 읽을 수 없습니다.</b>
+      기존 데이터는 삭제하지 않고 그대로 보존 중이며, 문제를 해결할 때까지 저장이 중지됩니다.
+      <div class="btn-row"><button class="btn" data-action="downloadCorrupt">손상 데이터 다운로드</button><button class="btn" data-action="import">백업 불러오기</button><button class="btn" data-action="reset">초기화</button></div></div>`;
+  } else if (mode === 'unavailable') {
+    el.innerHTML = `<div class="banner"><b>브라우저 저장소를 사용할 수 없습니다.</b>시크릿 모드이거나 저장소가 차단된 상태일 수 있어 데이터가 저장되지 않습니다. 브라우저 설정을 확인해 주세요.</div>`;
+  } else el.innerHTML = '';
+}
+
+function render() {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.nav === UI.view));
+  $('#viewTitle').textContent = VIEWS[UI.view];
+  $('#monthNav').hidden = UI.view === 'settings';
+  $('#monthLabel').textContent = fmtMonth(UI.month);
+  renderBanner();
+  const views = { home: viewHome, tx: viewTx, stats: viewStats, budget: viewBudget, calendar: viewCalendar, settings: viewSettings };
+  $('#view').innerHTML = views[UI.view]();
+  if (UI.view === 'tx') renderTxList();
+}
+function buildNav() {
+  const html = Object.entries(VIEWS).map(([id, label]) => `<button class="nav-btn" data-nav="${id}">${ICONS[id]}<span>${label}</span></button>`).join('');
+  $('#sideNav').innerHTML = html;
+  $('#bottomNav').innerHTML = html;
+}
+
+/* ---------- Transaction Sheet ---------- */
+function openForm(tx, date) {
+  UI.edit = tx ? tx.id : null;
+  UI.fType = tx ? tx.type : 'expense';
+  UI.fCat = tx ? tx.category : null;
+  $('#fTitle').textContent = tx ? '거래 수정' : '거래 추가';
+  $('#fAmount').value = tx ? tx.amount.toLocaleString('ko-KR') : '';
+  $('#fDate').value = tx ? tx.date : (date || defaultDate());
+  $('#fMemo').value = tx ? tx.memo : '';
+  $('#fDelete').hidden = !tx;
+  renderFormType();
+  $('#modal').hidden = false;
+  setTimeout(() => $('#fAmount').focus(), 30);
+}
+function closeForm() { $('#modal').hidden = true; UI.edit = null; }
+function renderFormType() {
+  document.querySelectorAll('#fTypeSeg button').forEach(b => b.classList.toggle('on', b.dataset.type === UI.fType));
+  const cats = DataStore.categoriesOf(UI.fType);
+  if (!cats.some(c => c.id === UI.fCat)) UI.fCat = cats[0] ? cats[0].id : null;
+  $('#fCats').innerHTML = cats.map(c => `<button type="button" class="chip ${c.id === UI.fCat ? 'on' : ''}" data-fcat="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</button>`).join('');
+}
+
+/* ---------- File helpers ---------- */
+function download(name, text, type = 'application/json') {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+const stampName = () => todayStr().replace(/-/g, '');
+
+/* ---------- Actions ---------- */
+const actions = {
+  add: () => openForm(null),
+  addOnDate: () => openForm(null, UI.calDate),
+  cancel: closeForm,
+  delete: () => {
+    if (!UI.edit || !confirm('이 거래를 삭제할까요?')) return;
+    if (DataStore.deleteTransaction(UI.edit)) { closeForm(); toast('삭제했습니다'); }
+  },
+  clearBudget: () => { if (DataStore.updateBudget(UI.month, null)) toast('기본 예산으로 되돌렸습니다'); },
+  delCat: el => {
+    const id = el.dataset.id, c = DataStore.category(id);
+    const used = DataStore.getState().transactions.filter(t => t.category === id).length;
+    if (!confirm(`'${c.name}' 카테고리를 삭제할까요?${used ? `\n이 카테고리의 거래 ${used}건은 '기타'로 이동합니다.` : ''}`)) return;
+    if (DataStore.deleteCategory(id)) toast('카테고리를 삭제했습니다');
+  },
+  export: () => { download(`campus-wallet-backup-${stampName()}.json`, DataStore.exportData()); toast('백업 파일을 내보냈습니다'); },
+  import: () => $('#fileInput').click(),
+  downloadCorrupt: () => download(`campus-wallet-corrupt-${stampName()}.txt`, DataStore.getCorruptRaw() || '', 'text/plain'),
+  reset: () => {
+    if (!confirm('모든 데이터가 삭제되며 되돌릴 수 없습니다.\n먼저 JSON 백업을 권장합니다.\n\n정말 초기화할까요?')) return;
+    if (DataStore.resetData()) toast('초기화했습니다');
+  }
+};
+
+/* ---------- Event bindings ---------- */
+document.addEventListener('click', e => {
+  if (e.target.id === 'modal') { closeForm(); return; }
+  const el = e.target.closest('[data-nav],[data-month],[data-edit],[data-ftype],[data-date],[data-fcat],[data-type],[data-cattab],[data-action]');
+  if (!el) return;
+  const d = el.dataset;
+  if (d.nav) { UI.view = d.nav; render(); window.scrollTo(0, 0); }
+  else if (d.month) { UI.month = shiftMonth(UI.month, Number(d.month)); UI.calDate = null; render(); }
+  else if (d.edit) { const t = DataStore.getState().transactions.find(x => x.id === d.edit); if (t) openForm(t); }
+  else if (d.ftype) { UI.type = d.ftype; UI.cat = 'all'; render(); }
+  else if (d.date) { UI.calDate = d.date; render(); }
+  else if (d.fcat) { UI.fCat = d.fcat; renderFormType(); }
+  else if (d.type) { UI.fType = d.type; renderFormType(); }
+  else if (d.cattab) { UI.catTab = d.cattab; render(); }
+  else if (d.action && actions[d.action]) actions[d.action](el);
+});
+
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.matches('[data-money]')) {
+    const digits = t.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '').slice(0, 12);
+    t.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+  }
+  if (t.id === 'search') { UI.q = t.value; renderTxList(); }
+});
+
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'catFilter') { UI.cat = t.value; renderTxList(); }
+  if (t.dataset && t.dataset.catfield) {
+    const id = t.closest('[data-cat]').dataset.cat;
+    try { if (DataStore.updateCategory(id, { [t.dataset.catfield]: t.value })) toast('카테고리를 수정했습니다'); }
+    catch (err) { toast(err.message, true); render(); }
+  }
+});
+
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    if (f.id === 'txForm') {
+      const editing = UI.edit;
+      const data = { type: UI.fType, amount: parseAmount($('#fAmount').value), date: $('#fDate').value, category: UI.fCat, memo: $('#fMemo').value };
+      const r = editing ? DataStore.updateTransaction(editing, data) : DataStore.addTransaction(data);
+      if (r) { closeForm(); toast(editing ? '수정했습니다' : '추가했습니다'); }
+    } else if (f.id === 'quickForm') {
+      const r = DataStore.addTransaction({ type: 'expense', amount: parseAmount($('#qAmount').value), date: defaultDate(), category: $('#qCat').value, memo: $('#qMemo').value });
+      if (r) toast('지출을 추가했습니다');
+    } else if (f.id === 'budgetForm') {
+      const v = parseAmount($('#bAmount').value);
+      if (Number.isNaN(v)) throw new Error('예산 금액을 입력하세요.');
+      if (DataStore.updateBudget(UI.month, v)) toast(`${fmtMonth(UI.month)} 예산을 저장했습니다`);
+    } else if (f.id === 'defBudgetForm') {
+      const v = parseAmount($('#dAmount').value);
+      if (Number.isNaN(v)) throw new Error('기본 예산 금액을 입력하세요.');
+      if (DataStore.updateSettings({ defaultBudget: v })) toast('기본 예산을 저장했습니다');
+    } else if (f.id === 'catForm') {
+      if (DataStore.addCategory({ name: $('#cName').value, icon: $('#cIcon').value, type: UI.catTab })) toast('카테고리를 추가했습니다');
+    }
+  } catch (err) { toast(err.message, true); }
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) closeForm(); });
+
+$('#fileInput').addEventListener('change', e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let obj;
+    try { obj = JSON.parse(reader.result); } catch (_) { alert('JSON 형식이 아닌 파일입니다.'); return; }
+    const v = DataStore.validate(obj);
+    if (!v.ok) { alert('백업 파일 구조가 올바르지 않아 불러오지 않았습니다.\n\n- ' + v.errors.join('\n- ')); return; }
+    const budgets = obj.budgets ? Object.keys(obj.budgets).length : 0;
+    if (!confirm(`백업 파일 확인\n· 거래 ${obj.transactions.length}건\n· 월별 예산 ${budgets}개\n· 카테고리 ${obj.categories.length}개\n\n현재 데이터를 이 백업으로 덮어씁니다. 계속할까요?`)) return;
+    try { if (DataStore.importData(obj)) toast('백업을 복원했습니다'); }
+    catch (err) { alert(err.message); }
+  };
+  reader.onerror = () => alert('파일을 읽지 못했습니다.');
+  reader.readAsText(file);
+});
+
+// 다른 탭에서 변경 시 동기화 (덮어쓰기 충돌 방지)
+window.addEventListener('storage', e => {
+  if (e.key === DataStore.KEY && e.newValue !== null) { DataStore.loadData(); render(); setStatus('동기화됨 ✓', 'ok'); }
+});
+
+/* =========================================================
+   6. BOOT
+   ========================================================= */
+DataStore.on('saved', () => setStatus('저장됨 ✓', 'ok'));
+DataStore.on('error', msg => { setStatus('저장 실패', 'err'); toast(msg, true); });
+DataStore.on('change', render);
+
+buildNav();
+const boot = DataStore.loadData();
+render();
+if (boot.status === 'loaded') setStatus('저장됨 ✓', 'ok');
+else if (boot.status === 'corrupt') { setStatus('저장 중지됨', 'err'); console.error('[CAMPUS WALLET] 저장 데이터 손상:', boot.error); }
+else if (boot.status === 'unavailable') setStatus('저장 불가', 'err');
+</script>
+</body>
+</html>
